@@ -1,7 +1,78 @@
-<!-- 
-<li  *ngFor="result item of results">
+<h2>aall subject</h2>
+<table>
+    <tr>
+        <th>subject code</th>
+        <th>subject</th>
+        <th>result</th>
+        
+    </tr>
+    <tr *ngFor="let result of results">
+        <th>{{result.course.courseCode}}</th>
+        <th>{{result.course.name}}</th>
+        <th>{{result.result}}</th>
+    </tr>
+</table>
 
-    <div>
-        <h1>result.result</h1>
-    </div>
-</li> -->
+<hr>
+<h2>first year subject</h2>
+<table>
+    <tr>
+        <th>subject code</th>
+        <th>subject</th>
+        <th>result</th>
+        
+    </tr>
+    <tr *ngFor="let result1 of firstYearResults">
+        <th>{{result1.course.courseCode}}</th>
+        <th>{{result1.course.name}}</th>
+        <th>{{result1.result}}</th>
+    </tr>
+</table>
+
+<hr>
+<h2>second year  subject</h2>
+<table>
+    <tr>
+        <th>subject code</th>
+        <th>subject</th>
+        <th>result</th>
+        
+    </tr>
+    <tr *ngFor="let result2 of secondYearResults">
+        <th>{{result2.course.courseCode}}</th>
+        <th>{{result2.course.name}}</th>
+        <th>{{result2.result}}</th>
+    </tr>
+</table>
+
+<hr>
+<h2>therd year subject</h2>
+<table>
+    <tr>
+        <th>subject code</th>
+        <th>subject</th>
+        <th>result</th>
+        
+    </tr>
+    <tr *ngFor="let result3 of thredYearResults">
+        <th>{{result3.course.courseCode}}</th>
+        <th>{{result3.course.name}}</th>
+        <th>{{result3.result}}</th>
+    </tr>
+</table>
+
+<hr>
+<h2>forth year  subject</h2>
+<table>
+    <tr>
+        <th>subject code</th>
+        <th>subject</th>
+        <th>result</th>
+        
+    </tr>
+    <tr *ngFor="let result4 of forthtYearResults">
+        <th>{{result4.course.courseCode}}</th>
+        <th>{{result4.course.name}}</th>
+        <th>{{result4.result}}</th>
+    </tr>
+</table>
