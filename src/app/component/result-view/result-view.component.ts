@@ -26,16 +26,31 @@ export class ResultViewComponent implements OnInit {
      gpa2Year: number;
      gpa3Year: number;
      gpa4Year: number;
+     totalCreditYear1: number;
+     totalCreditYear2: number;
+     totalCreditYear3: number;
+     totalCreditYear4: number;
+
+     finalGpa: number;
+     calFianalGpa: boolean= false;
+     msgAwardOfClass: string;
+
   constructor(
     private resultViewService: ResultViewService
   ) { }
 
   ngOnInit() {
-    this.resultViewService.getResultByEpNumber("EP2032").subscribe(data => {
-      this.results = data;
-      // let numb = this.results[0].course.courseCode.match(/\d/g);
+   this.getResultByEpNumber();
+  }
+
+  //get result array by epa number and pass that data to related methode for find finalgpa
+  getResultByEpNumber(){
+     this.resultViewService.getResultByEpNumber("EP2032").subscribe(data => {
+      this.results = data; 
+      // pass this result array to this methode for catogarice results by year  
       this.catogariceSubjectsEyerBy(this.results);
-      console.log(this.results.length);
+      console.log(this.results);
+      console.log(this.results[0].student.degreeProYear);
       console.log(this.firstYearResults.length);
       console.log(this.secondYearResults.length);
       console.log(this.thredYearResults.length);
@@ -43,10 +58,91 @@ export class ResultViewComponent implements OnInit {
     }, err => {
 
     });
+ 
+  // find gpa for first year
+        if(this.firstYearResults.length > 0){
+          // pass first year results to this methode for find there has sem1 and sem2 result
+          this.year1sem1sem2 = this.checkSemOneSemTwoinclude(this.firstYearResults);
+            if(this.year1sem1sem2){
+                // pass first year result to this methode for find there has repeeted subjects or absent subjects
+                this.absentOrRepeetInYear1 = this.checkResultHasRepeetOrAbsent(this.firstYearResults);
+                if(this.absentOrRepeetInYear1){  
+                  // fass first year results to this methode for find first year gpa                
+                  this.gpa1Year = this.findGpaInYear(this.firstYearResults);                
+                  console.log("first year gpa", this.gpa1Year);
+                }
+            }
+     
+        }
+
+  // find gpa for second  year
+     if(this.secondYearResults.length > 0){
+       // pass second year results to this methode for find there has sem1 and sem2 result
+       this.year2sem1sem2 = this.checkSemOneSemTwoinclude(this.secondYearResults);
+          if(this.year2sem1sem2){
+             // pass second year result to this methode for find there has repeeted subjects or absent subjects
+            this.absentOrRepeetInYear2 = this.checkResultHasRepeetOrAbsent(this.secondYearResults);
+            if(this.absentOrRepeetInYear2){
+               // fass second year results to this methode for find second year gpa
+              this.gpa2Year = this.findGpaInYear(this.secondYearResults)
+              console.log("second year gpa", this.gpa2Year);
+            }
+          }
+    }
+
+// find gpa for therd  year
+     if(this.thredYearResults.length > 0){
+       // pass therd year results to this methode for find there has sem1 and sem2 result
+        this. year3sem1sem2 = this.checkSemOneSemTwoinclude(this.thredYearResults);         
+          if(this.year3sem1sem2){
+             // pass therd year result to this methode for find there has repeeted subjects or absent subjects
+             this.absentOrRepeetInYear3 = this.checkResultHasRepeetOrAbsent(this.thredYearResults);
+              if(this.absentOrRepeetInYear3){
+                // fass therd year results to this methode for find therd year gpa
+                this.gpa3Year = this.findGpaInYear(this.thredYearResults)
+                console.log("thred year gpa", this.gpa3Year);
+              }
+          }
+     }
+
+// find gpa for fourth  year
+     if(this.forthtYearResults.length > 0){
+        // pass fourth year results to this methode for find there has sem1 and sem2 result
+        this.year4sem1sem2 = this.checkSemOneSemTwoinclude(this.forthtYearResults);      
+          if(this.year4sem1sem2){
+             // pass fourth year result to this methode for find there has repeeted subjects or absent subjects
+            this.absentOrRepeetInYear4 = this.checkResultHasRepeetOrAbsent(this.forthtYearResults);
+            if(this.absentOrRepeetInYear4){
+               // fass fourth year results to this methode for find fourth year gpa
+              this.gpa4Year = this.findGpaInYear(this.forthtYearResults)
+              console.log("forth year gpa", this.gpa4Year);
+            }
+          }
+    }
+
+    console.log("year1sem1sem2",this.year1sem1sem2);
+     console.log("year2sem1sem2",this.year2sem1sem2);
+      console.log("year3sem1sem2",this.year3sem1sem2);
+       console.log("year4sem1sem2",this.year4sem1sem2);
+
+    //calculate gpa for 3 year degree program student
+    if(this.results[0].student.degreeProYear === 3){
+      if(this.absentOrRepeetInYear1 && this.absentOrRepeetInYear2 && this.absentOrRepeetInYear3){
+        this.calculateFinalGpaForThreeYeardf();
+      }
+    }
+      //calculate gpa for 4 year degree program student
+    if(this.results[0].student.degreeProYear === 4){
+      if(this.absentOrRepeetInYear1 && this.absentOrRepeetInYear2 && this.absentOrRepeetInYear3 && this.absentOrRepeetInYear4){
+        this. calculateFinalGpaForFourYeardf();
+      }
+    }
+
+
   }
 
 
-
+// categorize result for years by using subject code
   catogariceSubjectsEyerBy(results: Result[]) {
 
     results.forEach((result, i) => {
@@ -64,65 +160,13 @@ export class ResultViewComponent implements OnInit {
         case "4":
           this.forthtYearResults.push(result);
           break;
-      }
-
-      console.log(codeNumber);
+      }     
 
     });
-
-    if(this.firstYearResults.length > 0){
-     this.year1sem1sem2 = this.checkSemOneSemTwoinclude(this.firstYearResults);
-     if(this.year1sem1sem2){
-        this.absentOrRepeetInYear1 = this.checkResultHasRepeetOrAbsent(this.firstYearResults);
-        if(this.absentOrRepeetInYear1){
-          this.gpa1Year = this.findGpaInYear(this.firstYearResults)
-          console.log("first year gpa", this.gpa1Year);
-        }
-     }
-     
-    }
-
-     if(this.secondYearResults.length > 0){
-     this.year2sem1sem2 = this.checkSemOneSemTwoinclude(this.secondYearResults);
-          if(this.year2sem1sem2){
-        this.absentOrRepeetInYear2 = this.checkResultHasRepeetOrAbsent(this.secondYearResults);
-        if(this.absentOrRepeetInYear2){
-          this.gpa2Year = this.findGpaInYear(this.secondYearResults)
-          console.log("second year gpa", this.gpa2Year);
-        }
-     }
-    }
-
-     if(this.thredYearResults.length > 0){
-        this. year3sem1sem2 = this.checkSemOneSemTwoinclude(this.thredYearResults);
-
-          if(this.year3sem1sem2){
-             this.absentOrRepeetInYear3 = this.checkResultHasRepeetOrAbsent(this.thredYearResults);
-              if(this.absentOrRepeetInYear3){
-                this.gpa3Year = this.findGpaInYear(this.thredYearResults)
-                console.log("second year gpa", this.gpa3Year);
-              }
-          }
-     }
-
-     if(this.forthtYearResults.length > 0){
-        this.year4sem1sem2 = this.checkSemOneSemTwoinclude(this.forthtYearResults);      
-          if(this.year4sem1sem2){
-            this.absentOrRepeetInYear4 = this.checkResultHasRepeetOrAbsent(this.forthtYearResults);
-            if(this.absentOrRepeetInYear4){
-              this.gpa4Year = this.findGpaInYear(this.forthtYearResults)
-              console.log("second year gpa", this.gpa4Year);
-            }
-          }
-    }
-
-    console.log("year1sem1sem2",this.year1sem1sem2);
-     console.log("year2sem1sem2",this.year2sem1sem2);
-      console.log("year3sem1sem2",this.year3sem1sem2);
-       console.log("year4sem1sem2",this.year4sem1sem2);
-
+    
   }
 
+  // check that pased result set has sem1 and sem2 subjects
   checkSemOneSemTwoinclude(results: Result[]){
     let sem1 = false;
     let sem2 = false;
@@ -148,6 +192,7 @@ export class ResultViewComponent implements OnInit {
    return sem1sem2;
   }
 
+ // check that passed result set has absent or repeeted subject
   checkResultHasRepeetOrAbsent(results: Result[]){
     let repeetOrAbsent: any;
     results.forEach(result => {
@@ -163,18 +208,38 @@ export class ResultViewComponent implements OnInit {
     return repeetOrAbsent;
   }
 
+// find gpa for year
   findGpaInYear(results: Result[]){
-    let sumOfCredits: number = 0;
-    let creditPoint: number =0;
+     let sumOfCredits: number = 0;
+     let creditPoint: number =0;
     let cpGp: number = 0;
     let sumCpGp: number = 0;
     let gpa: number =0;
     let gradePoit: number = 0;
     results.forEach(result => {
-     let codeNumber = result.course.courseCode.match(/\d/g);
-     creditPoint = parseInt(codeNumber[2]);
-    // console.log("credit poit **", codeNumber[2]);
-     sumOfCredits+=creditPoint; 
+      let codeNumber = result.course.courseCode.match(/\d/g);
+      // get credit for a subject by using code number
+      creditPoint = parseInt(codeNumber[2]);  
+      // get total creadit point
+      sumOfCredits+=creditPoint; 
+     // assing total credit for related year
+     switch(codeNumber[0]){
+       case "1":
+       this.totalCreditYear1 = sumOfCredits;
+       break;
+       case "2":
+       this.totalCreditYear2 = sumOfCredits;
+       break;
+       case "3":
+       this.totalCreditYear3 = sumOfCredits;
+       break;
+       case "4":
+       this.totalCreditYear4 = sumOfCredits;
+       break;
+       
+     }
+
+     // get grate point for a subject by result
      switch(result.result){
     
      case "A+":
@@ -214,18 +279,51 @@ export class ResultViewComponent implements OnInit {
         gradePoit = 0.00;
         break;  
      }
- //console.log("gggggggggggg", gradePoit);
+   // get (credit point * grade point) for a subject 
    cpGp= creditPoint * gradePoit;
+   // get total value of (credit point * grade point) 
    sumCpGp += cpGp;
     });
 
     // calculate gpa
     gpa = sumCpGp/sumOfCredits;
- console.log("first year gpa", gpa);
- console.log("number of credit point",sumOfCredits );
- console.log("number of credit point * gp",sumCpGp );
+
     return gpa;
    
   }
+
+// calculate gpa for three year degree program
+  calculateFinalGpaForThreeYeardf(){
+    
+    let sumOfatp = 0.3*this.totalCreditYear1*this.gpa1Year + 0.3*this.totalCreditYear2*this.gpa2Year + 0.4*this.totalCreditYear3*this.gpa3Year ;
+    let sumOfat = 0.3*this.totalCreditYear1 + 0.3*this.totalCreditYear2 + 0.4*this.totalCreditYear3;
+
+    this.finalGpa = sumOfatp/sumOfat;
+    this.calFianalGpa = true;
+    console.log("final gpa for three year ", this.finalGpa)
+
+  }
+
+  // calculate gpa for four year degree program
+  calculateFinalGpaForFourYeardf(){
+    
+    let sumOfatp = 0.2*this.totalCreditYear1*this.gpa1Year + 0.2*this.totalCreditYear2*this.gpa2Year + 0.3*this.totalCreditYear3*this.gpa3Year + 0.3*this.totalCreditYear4*this.gpa4Year;
+    let sumOfat = 0.2*this.totalCreditYear1 + 0.2*this.totalCreditYear2 + 0.3*this.totalCreditYear3 + 0.3*this.totalCreditYear4;
+
+    this.finalGpa = sumOfatp/sumOfat;
+    this.calFianalGpa = true;
+    console.log("final gpa for four year ", this.finalGpa)
+
+  }
+
+  // awardOfClasses(){
+   
+  //  if(this.finalGpa >= 3.7)
+  //   this.msgAwardOfClass = "FIRST CLASS";
+  //  }else(){
+
+
+  //  }
+  // }
 
 }
